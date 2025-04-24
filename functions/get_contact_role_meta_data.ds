@@ -1,0 +1,21 @@
+string standalone.get_contact_role_meta_data()
+{
+// Original author - Sam Prabhu
+// Contributing developers:
+// - Dash Bunyan
+//
+// NOTE: When requesting the contact roles on a deal it will only return
+// the role IDs. In order to use the label values this function will return
+// a mapping that matches ID to label.
+//
+// fetch the roles mapping
+response = invokeurl
+[
+    url :"https://www.zohoapis.eu/crm/v3/Contacts/roles"
+    type :GET
+    connection:"zohocrm"
+];
+//
+// return the response
+return response;
+}
