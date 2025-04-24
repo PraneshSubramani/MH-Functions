@@ -6,7 +6,7 @@ void automation.set_participant_name(Int participant_id)
 //
 // @input.participant_id - The record ID for the participant
 //
-// assign new name 123
+// assign new name
 participant_name_list = List();
 // get the participant record
 participant_info = zoho.crm.getRecordById("Participants",participant_id);
