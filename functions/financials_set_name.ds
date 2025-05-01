@@ -1,0 +1,49 @@
+void automation.financials_set_name(Int assessment_id)
+{
+// Original author - Sam Prabhu
+// Contributing developers:
+// - Dash Bunyan
+//
+// @input.assessment_id - The record ID for the Financial Summary.
+//
+assessment_name_list = List();
+// get the assessment record
+assessment_info = zoho.crm.getRecordById("Financials",assessment_id);
+auto_index = assessment_info.get("Index");
+assessment_name_list.add("FIN" + auto_index);
+// get the contact info of the record
+assessment_contact_info = assessment_info.get("Contact");
+if(!assessment_contact_info.isNull())
+{
+    id = assessment_contact_info.get("id");
+    contact_info = zoho.crm.getRecordById("Contacts",id);
+    first_name_initial = "";
+    first_name = contact_info.get("First_Name");
+    last_name = contact_info.get("Last_Name");
+    if(!first_name.isNull())
+    {
+        first_name_initial = first_name.left(1) + ".";
+    }
+    assessment_name_list.add(first_name_initial + last_name);
+}
+// get the type of the record
+type = assessment_info.get("Type");
+if(!type.isNull())
+{
+    assessment_name_list.add(type);
+}
+// get the assessment date of the record
+date = assessment_info.get("Assessment_Date");
+if(!date.isNull())
+{
+    assessment_name_list.add(date.toString("dd/MM/YYYY"));
+}
+// assign new name
+new_assessment_name = assessment_name_list.toListString().replaceAll(","," - ");
+payload = Map();
+info new_assessment_name;
+payload.put("Name",new_assessment_name);
+// update the name
+update_result = zoho.crm.updateRecord("Financials",assessment_id,payload);
+info update_result;
+}
