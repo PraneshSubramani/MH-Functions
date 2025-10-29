@@ -1,0 +1,12 @@
+void automation.contact_trigger_address_history_calculation(Int contact_id)
+{
+// Original author - Sam Prabhu
+// Contributing developers:
+// 
+//
+// @input.contact_id - The record ID for the contact
+//
+//
+//trigger standalone known address history calculation.
+standalone.calculate_known_address_history_calculation(contact_id);
+}

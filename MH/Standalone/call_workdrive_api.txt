@@ -1,0 +1,100 @@
+string standalone.call_workdrive_api(String url,String type,String body)
+{
+// Original author - Dash Bunyan
+// Contributing developers:
+// - 
+//
+// @input.url - The Workdrive url to direct the API call to.
+// @input.type - The HTTP request type, an error will be returned if using an unsupported type.
+// @input.body - The content body to send with the request. Content type will be 'application/vnd.api+json' when sent.
+//
+// prepare result
+result = Map();
+//
+// default to an empty response
+response = null;
+//
+// check types
+types = {"GET","POST","PUT","PATCH"};
+if(!types.contains(type))
+{
+    result.put("error","HTTP request type was not recognised.");
+    result.put("message","The following types have been configured for use; " + types + ".");
+    return result;
+}
+//
+// prepare default headers
+default_headers = Map();
+default_headers.put("Accept","application/vnd.api+json");
+//
+// make the request
+try 
+{
+    if(type == "GET")
+    {
+        response = invokeurl
+        [
+            url :url
+            type :GET
+            headers:default_headers
+            connection:"workdrive"
+        ];
+    }
+    else if(type == "POST")
+    {
+        response = invokeurl
+        [
+            url :url
+            type :POST
+            parameters:body
+            headers:default_headers
+            connection:"workdrive"
+        ];
+    }
+    else if(type == "PUT")
+    {
+        response = invokeurl
+        [
+            url :url
+            type :PUT
+            parameters:body
+            headers:default_headers
+            connection:"workdrive"
+        ];
+    }
+    else if(type == "PATCH")
+    {
+        response = invokeurl
+        [
+            url :url
+            type :PATCH
+            parameters:body
+            headers:default_headers
+            connection:"workdrive"
+        ];
+    }
+}
+catch (error)
+{
+    result.put("error","Failed to make the API call to Workdrive.");
+    result.put("message",error);
+    result.put("request",{"url":url,"method":type,"body":body});
+    return result;
+}
+//
+// check for response data
+// NOTE: Through usage so far Workdrive API calls are always expected to return
+// data within the 'data' key in the response when a request has been fulfilled.
+response_data = response.get("data");
+if(response_data.isNull())
+{
+    result.put("error","There were problems fulfilling the API request in Workdrive.");
+    result.put("message",response);
+    result.put("request",{"url":url,"method":type,"body":body});
+    return result;
+}
+//
+// return the result / error
+result.put("data",response_data);
+return result;
+}

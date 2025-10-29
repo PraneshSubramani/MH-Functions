@@ -1,0 +1,24 @@
+string standalone.test1()
+{
+// // Type Here
+// response = getUrl("https://www.zohoapis.eu/crm/v2/functions/test/actions/execute?auth_type=apikey&zapikey=1003.e1b153c7eec39e0ecda9f3789946e850.4176afb7a7b6eb4420a43422701f5268");
+// info response;
+// description = "<strong>Hello!<\\/strong><p>Welcome to our site.</p>";
+// clean_string = description.replaceAll("<p>","").replaceAll("</p>"," ").replaceAll("<strong>","").replaceAll("<\\/strong>"," ");
+// return clean_string;
+// Create a variable to hold the headers that is required by Dropbox API
+header_data = Map();
+header_data.put("Content-Type","application/json");
+raw_data = Map();
+raw_data.put("email_id","srignanathesigan@gmail.com");
+raw_data.put("user_role","New User");
+response = invokeurl
+[
+    url :"https://www.zohoapis.eu/creator/custom/demo14a2zcloud/Invite_Portal_User?publickey=jnOdukMYNdY7Y2Y6D5THwSexU"
+    type :POST
+    body:raw_data.toString()
+    headers:{"content-type":"application/json"}
+];
+info response;
+return "";
+}

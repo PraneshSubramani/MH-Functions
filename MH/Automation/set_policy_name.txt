@@ -1,0 +1,49 @@
+void automation.set_policy_name(Int policy_id)
+{
+// Original author - Sam Prabhu
+// Contributing developers:
+// - Sri Gnanathesigan
+//
+// @input.policy_id - The record ID for the policy
+//
+//
+policy_name_list = List();
+// get the policy record
+policy_info = zoho.crm.getRecordById("Policies",policy_id);
+// get the index of the record
+auto_index = policy_info.get("Index");
+policy_name_list.add("POL" + auto_index);
+//
+// get the policy provider of the record
+policy_provider = policy_info.get("Policy_Provider");
+if(!policy_provider.isNull())
+{
+    provider_name = policy_provider.get("name");
+    policy_name_list.add(provider_name);
+}
+//
+// get the category of the record
+category = policy_info.get("Category");
+if(!category.isNull())
+{
+    policy_name_list.add(category);
+}
+// get the policy type of the record
+policy_product_type = policy_info.get("Product_Type");
+if(!policy_product_type.isNull())
+{
+    policy_name_list.add(policy_product_type);
+}
+//
+// get the active state
+is_active = policy_info.get("Is_Active");
+active_state = if(is_active,"ACTIVE","INACTIVE");
+policy_name_list.add(active_state);
+// assign new name
+new_policy_name = policy_name_list.toListString().replaceAll(","," - ");
+payload = Map();
+payload.put("Name",new_policy_name);
+// update the Policy
+update_result = zoho.crm.updateRecord("Policies",policy_id,payload);
+info update_result;
+}

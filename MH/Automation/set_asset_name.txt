@@ -1,0 +1,49 @@
+void automation.set_asset_name(Int asset_id)
+{
+// Original author - Sam Prabhu
+// Contributing developers:
+// - Dash Bunyan
+//
+// @input.asset_id - The record ID for the asset
+//
+// assign new name
+asset_name_list = List();
+// get the asset record
+asset_info = zoho.crm.getRecordById("Assets",asset_id);
+// get the index of the record
+auto_index = asset_info.get("Index");
+asset_name_list.add("AST" + auto_index);
+// get the asset-contact record
+asset_contact_info = asset_info.get("Assets_Contact");
+if(!asset_contact_info.isNull())
+{
+    id = asset_contact_info.get("id");
+    contact_info = zoho.crm.getRecordById("Contacts",id);
+    first_name_initial = "";
+    first_name = contact_info.get("First_Name");
+    last_name = contact_info.get("Last_Name");
+    if(!first_name.isNull())
+    {
+        first_name_initial = first_name.left(1) + ".";
+    }
+    asset_name_list.add(first_name_initial + last_name);
+}
+// get the asset category of the record
+asset_category = asset_info.get("Asset_Category");
+if(!asset_category.isNull())
+{
+    asset_name_list.add(asset_category);
+}
+//
+// get the active state
+is_active = asset_info.get("Is_Active");
+active_state = if(is_active,"ACTIVE","INACTIVE");
+asset_name_list.add(active_state);
+// assign new name
+new_asset_name = asset_name_list.toListString().replaceAll(","," - ");
+payload = Map();
+payload.put("Name",new_asset_name);
+// update the asset
+update_result = zoho.crm.updateRecord("Assets",asset_id,payload);
+info update_result;
+}

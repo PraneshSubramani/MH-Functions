@@ -1,0 +1,83 @@
+string standalone.calculate_known_address_history_calculation(Int contact_id)
+{
+// Original author - Sam Prabhu
+// Contributing developers:
+// 
+//
+// @input.contact_id - The record ID for the contact
+//
+//
+//Known address history calculation.
+occupancy_list = zoho.crm.getRelatedRecords("Address_History","Contacts",contact_id);
+least_current_occupancy_date = "";
+least_continous_date = "";
+continous_known_address_history_years = 0;
+next_history_calculation_date = "";
+for each  occupancy in occupancy_list
+{
+    from_date = occupancy.get("From");
+    to_date = occupancy.get("To");
+    if(!from_date.isNull() && to_date.isNull())
+    {
+        if(least_current_occupancy_date == "")
+        {
+            least_current_occupancy_date = from_date;
+        }
+        else
+        {
+            diff_days = from_date.daysbetween(least_current_occupancy_date);
+            if(diff_days > 0)
+            {
+                least_current_occupancy_date = from_date;
+            }
+        }
+    }
+}
+if(least_current_occupancy_date != "")
+{
+    is_least_continous_date_found = false;
+    least_continous_date = least_current_occupancy_date;
+    for each  occupancy in occupancy_list
+    {
+        if(is_least_continous_date_found)
+        {
+            break;
+        }
+        least_continous_date_changed = false;
+        for each  occupancy in occupancy_list
+        {
+            from_date = occupancy.get("From");
+            to_date = occupancy.get("To");
+            is_from_lesser_than_least_current_occupancy_date = from_date.daysbetween(least_continous_date) > 0;
+            if(!from_date.isNull() && !to_date.isNull() && is_from_lesser_than_least_current_occupancy_date)
+            {
+                to_diff_days = to_date.daysbetween(least_continous_date);
+                if(to_diff_days <= 1)
+                {
+                    if(from_date.daysBetween(least_continous_date) > 0)
+                    {
+                        least_continous_date = from_date;
+                        least_continous_date_changed = true;
+                    }
+                }
+            }
+        }
+        if(!least_continous_date_changed)
+        {
+            is_least_continous_date_found = true;
+        }
+    }
+    continous_known_address_history_years = (least_continous_date.monthsBetween(today) / 12).round(1);
+    info continous_known_address_history_years;
+    next_history_calculation_diff_years = least_continous_date.yearsBetween(today) + 1;
+    next_history_calculation_date = least_continous_date.addYear(next_history_calculation_diff_years);
+}
+// prepare an update to the contact
+payload = Map();
+payload.put("Address_History_Calculation_Date",next_history_calculation_date);
+payload.put("Known_Address_History",continous_known_address_history_years);
+//update the contact
+update_result = zoho.crm.updateRecord("Contacts",contact_id,payload);
+info update_result;
+return continous_known_address_history_years;
+}

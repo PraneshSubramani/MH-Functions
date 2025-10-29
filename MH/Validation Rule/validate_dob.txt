@@ -1,0 +1,32 @@
+map validation_rule.validate_dob(String crmAPIRequest)
+{
+// Original author - Dash Bunyan
+// Contributing developers:
+// - Sam Prabhu
+//
+// @input.crmAPIRequest - The request details from the CRM client when the validation rule triggers.
+//
+// get the record details and prepare response
+entityMap = crmAPIRequest.toMap().get("record");
+response = Map();
+//
+// get the value of the date of birth field
+date_of_birth_string = entityMap.get("Date_of_Birth");
+if(date_of_birth_string != null && date_of_birth_string != "")
+{
+    // parse to date
+    date_of_birth = date_of_birth_string.toDate();
+    //
+    // check if its in the future
+    if(date_of_birth >= zoho.currentdate)
+    {
+        response.put('status','error');
+        response.put('message',"The date can't be in the future.");
+        return response;
+    }
+}
+//
+// value is valid (even if empty)
+response.put('status','success');
+return response;
+}

@@ -1,0 +1,33 @@
+map validation_rule.validate_passport_number(String crmAPIRequest)
+{
+// Original author - Sam Prabhu
+// Contributing developers:
+// - Dash Bunyan
+//
+// @input.crmAPIRequest - The request details from the CRM client when the validation rule triggers.
+//
+// get the record details and prepare response
+entityMap = crmAPIRequest.toMap().get("record");
+response = Map();
+info entityMap;
+//
+// get the value of the Passport Number field
+passport_number = entityMap.get("Passport_Number");
+info passport_number;
+if(passport_number != null && passport_number != "")
+{
+    passport_number_required_length = 30;
+    passport_number_length = passport_number.trim().length();
+    if(passport_number_length > 0 && passport_number_length != passport_number_required_length)
+    {
+        error_message = "Incorrect passport number. No of characters is:" + passport_number_length + ", should be:" + passport_number_required_length;
+        response.put('status','error');
+        response.put('message',error_message);
+        return response;
+    }
+}
+//
+// value is valid (even if empty)
+response.put('status','success');
+return response;
+}

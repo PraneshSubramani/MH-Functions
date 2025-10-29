@@ -1,0 +1,95 @@
+void automation.set_occupancy_name(Int record_id)
+{
+// Original author - Sam Prabhu
+// Contributing developers:
+// - Dash Bunyan
+//
+// @input.record_id - The ID of the record to be named.
+//
+// set constants
+MODULE = "Occupancies";
+PREFIX = "OCC";
+SEPARATOR = " - ";
+//
+// prepare name list
+name_list = List();
+//
+// get the Occupancy record
+record = zoho.crm.getRecordById(MODULE,record_id);
+//
+// get the index of the record and prefix with module code
+index = record.get("Index");
+name_list.add(PREFIX + index);
+//
+// check if the contact is registered
+registered_contact = record.get("Registered_Contact");
+if(registered_contact.equals("Yes"))
+{
+    // get the contact record details
+    contact_info = record.get("Contact");
+    if(!contact_info.isNull())
+    {
+        // fetch the full record
+        id = contact_info.get("id");
+        contact = zoho.crm.getRecordById("Contacts",id);
+        //
+        // build the name
+        first_name_initial = "";
+        first_name = contact.get("First_Name");
+        last_name = contact.get("Last_Name");
+        if(!first_name.isNull())
+        {
+            first_name_initial = first_name.left(1) + ".";
+        }
+        if(!first_name.isNull() || !last_name.isNull())
+        {
+            name_list.add(first_name_initial + last_name);
+        }
+    }
+}
+else if(registered_contact.equals("No"))
+{
+    // build the name
+    first_name = record.get("First_Name");
+    last_name = record.get("Last_Name");
+    first_name_initial = "";
+    if(!first_name.isNull())
+    {
+        first_name_initial = first_name.left(1) + ".";
+    }
+    if(!first_name.isNull() || !last_name.isNull())
+    {
+        name_list.add(first_name_initial + last_name);
+    }
+}
+//
+// get the address record details
+address_info = record.get("Address");
+if(!address_info.isNull())
+{
+    // fetch the full record
+    id = address_info.get("id");
+    address = zoho.crm.getRecordById("Addresses",id);
+    //
+    // build the name
+    street = address.get("Street");
+    postal_code = address.get("Postal_Code");
+    name_list.add(street + SEPARATOR + postal_code);
+}
+//
+// get the active state
+is_active = record.get("Is_Active");
+active_state = if(is_active,"ACTIVE","INACTIVE");
+name_list.add(active_state);
+//
+// assign new name
+name = name_list.toString(SEPARATOR);
+//
+// prepare update
+payload = Map();
+payload.put("Name",name);
+//
+// update record
+update_result = zoho.crm.updateRecord(MODULE,record_id,payload);
+info update_result;
+}
